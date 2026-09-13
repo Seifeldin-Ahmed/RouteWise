@@ -1,0 +1,240 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Gateway configuration</h1>
+    <p>
+      Commission, limits, availability and speed all live in the database, so routing behaviour
+      changes here take effect on the next request with no redeploy.
+    </p>
+  </div>
+
+  @if (error()) {
+    <div class="alert error">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="alert success">{{ notice() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-title">
+      <div>
+        <h2>{{ editingId() === null ? 'Add a gateway' : 'Edit gateway #' + editingId() }}</h2>
+        <p>
+          Commission is charged as a flat fee plus a percentage, per transaction - so a split
+          payment pays the flat fee once per chunk.
+        </p>
+      </div>
+      @if (editingId() !== null) {
+        <button type="button" class="secondary small" (click)="resetForm()">Cancel edit</button>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            [class.invalid]="form.controls.name.touched && form.controls.name.invalid"
+          />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field-error">Name is required.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="fixedCommission">Fixed commission (EGP)</label>
+          <input id="fixedCommission" type="number" step="0.01" min="0" formControlName="fixedCommission" />
+        </div>
+
+        <div class="field">
+          <label for="percentageCommission">Percentage (%)</label>
+          <input
+            id="percentageCommission"
+            type="number"
+            step="0.01"
+            min="0"
+            formControlName="percentageCommission"
+          />
+        </div>
+
+        <div class="field">
+          <label for="minTransactionAmount">Min per transaction</label>
+          <input
+            id="minTransactionAmount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            formControlName="minTransactionAmount"
+          />
+        </div>
+
+        <div class="field">
+          <label for="maxTransactionAmount">Max per transaction</label>
+          <input
+            id="maxTransactionAmount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            formControlName="maxTransactionAmount"
+            [readOnly]="form.controls.noMaximum.value"
+          />
+          <label class="checkbox inline">
+            <input type="checkbox" formControlName="noMaximum" />
+            No limit
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="dailyLimitPerBiller">Daily limit per biller</label>
+          <input
+            id="dailyLimitPerBiller"
+            type="number"
+            step="0.01"
+            min="0.01"
+            formControlName="dailyLimitPerBiller"
+          />
+        </div>
+
+        <div class="field">
+          <label for="availableFrom">Available from</label>
+          <input id="availableFrom" type="time" formControlName="availableFrom" />
+        </div>
+
+        <div class="field">
+          <label for="availableTo">Available to</label>
+          <input id="availableTo" type="time" formControlName="availableTo" />
+          <span class="muted small-note">
+            Equal times mean 24 hours. A later start than end crosses midnight.
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="availableDayFrom">Open from (day)</label>
+          <select id="availableDayFrom" formControlName="availableDayFrom">
+            @for (day of weekOrder; track day) {
+              <option [value]="day">{{ shortDay[day] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="availableDayTo">Open to (day)</label>
+          <select id="availableDayTo" formControlName="availableDayTo">
+            @for (day of weekOrder; track day) {
+              <option [value]="day">{{ shortDay[day] }}</option>
+            }
+          </select>
+          <span class="muted small-note">
+            Both ends included, and the range may wrap: Mon to Sun is every day.
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="processingTimeHours">Processing time (hours)</label>
+          <input
+            id="processingTimeHours"
+            type="number"
+            min="0"
+            formControlName="processingTimeHours"
+          />
+          <span class="muted small-note">0 means Instant.</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <label class="checkbox">
+          <input type="checkbox" formControlName="active" />
+          Routable
+        </label>
+        <button type="submit" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : editingId() === null ? 'Create gateway' : 'Save changes' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <div>
+        <h2>Configured gateways</h2>
+        <p>Deactivating is a soft delete: the row stays so old transactions still resolve.</p>
+      </div>
+      <button type="button" class="secondary small" (click)="load()" [disabled]="loading()">
+        {{ loading() ? 'Loading...' : 'Refresh' }}
+      </button>
+    </div>
+
+    @if (rows().length === 0) {
+      <div class="empty">{{ loading() ? 'Loading gateways...' : 'No gateways configured yet.' }}</div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Commission</th>
+              <th class="numeric">Min</th>
+              <th class="numeric">Max</th>
+              <th class="numeric">Daily limit</th>
+              <th>Availability</th>
+              <th class="numeric">Speed</th>
+              <th>State</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (gateway of rows(); track gateway.id) {
+              <tr [class.inactive]="!gateway.active">
+                <td>{{ gateway.id }}</td>
+                <td>{{ gateway.name }}</td>
+                <td>
+                  {{ gateway.fixedCommission | number: '1.2-2' }} EGP +
+                  {{ gateway.percentageCommission | number: '1.2-2' }}%
+                </td>
+                <td class="numeric">{{ gateway.minTransactionAmount | number: '1.2-2' }}</td>
+                <td class="numeric">
+                  @if (gateway.maxTransactionAmount == null) {
+                    <span class="badge">No limit</span>
+                  } @else {
+                    {{ gateway.maxTransactionAmount | number: '1.2-2' }}
+                  }
+                </td>
+                <td class="numeric">{{ gateway.dailyLimitPerBiller | number: '1.2-2' }}</td>
+                <td>{{ availabilityLabel(gateway.availableDayFrom, gateway.availableDayTo, gateway.availableFrom, gateway.availableTo) }}</td>
+                <td class="numeric">{{ speedLabel(gateway.processingTimeHours) }}</td>
+                <td>
+                  <span class="badge" [class.ok]="gateway.active" [class.off]="!gateway.active">
+                    {{ gateway.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <button type="button" class="secondary small" (click)="edit(gateway)">Edit</button>
+                  <button
+                    type="button"
+                    class="small"
+                    [class.warn]="gateway.active"
+                    [class.secondary]="!gateway.active"
+                    (click)="toggleActive(gateway)"
+                  >
+                    {{ gateway.active ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="danger small"
+                    title="Removes the gateway and every transaction recorded against it."
+                    (click)="remove(gateway)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

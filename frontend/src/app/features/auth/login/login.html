@@ -1,0 +1,75 @@
+<div class="auth-split">
+  <aside class="auth-aside">
+    <span class="auth-tag">Routing engine</span>
+
+    <h2>Sign in and let<br /><span class="gradient-text">RouteWise pick the gateway.</span></h2>
+
+    <p class="auth-lede">
+      One call decides everything: which gateways are open, which have allowance left, which will
+      take the amount, and which of those wins on cost or on speed.
+    </p>
+
+    <ul class="auth-points">
+      <li><span><b>Cheapest or fastest</b> - one flag on the request decides which way the ranking leans.</span></li>
+      <li><span><b>Automatic splitting</b> - an amount over a gateway's ceiling is chunked and sent anyway.</span></li>
+      <li><span><b>Your own daily limit</b> - a separate spending allowance on every gateway, full again at midnight.</span></li>
+    </ul>
+  </aside>
+
+  <div class="card auth-card">
+    <div class="page-header">
+      <h1>Sign in</h1>
+      <p>Use a seeded account below, or one you created.</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert error">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          [class.invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="field-error">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          [class.invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field-error">Password is required.</span>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Signing in...' : 'Sign in' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="demo">
+      <span class="muted">Seeded accounts:</span>
+      <button type="button" class="secondary small" (click)="useDemoAccount('admin')">Admin</button>
+      <button type="button" class="secondary small" (click)="useDemoAccount('biller')">Biller</button>
+    </div>
+
+    <p class="auth-alt">
+      No account yet? <a routerLink="/signup">Create a biller account</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RouteWise - smart payment routing</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+        content="RouteWise picks the cheapest or fastest gateway for every payment, splits what will not fit, and tracks each biller's daily allowance.">
+  <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f7fc" media="(prefers-color-scheme: light)">
+  <!-- Before first paint, so the page never flashes the theme the visitor did not ask for. -->
+  <script>
+    document.documentElement.dataset.theme =
+      localStorage.getItem('routewise.theme') ||
+      (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  </script>
+  <!-- Inline so the mark matches the one in the top bar exactly, gradient included, with no extra request. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='.55' stop-color='%23a78bfa'/%3E%3Cstop offset='1' stop-color='%232dd4bf'/%3E%3C/linearGradient%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M6 24c8 0 5-16 13-16h5' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='8' r='3.2' fill='white'/%3E%3C/svg%3E">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

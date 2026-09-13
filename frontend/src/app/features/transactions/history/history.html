@@ -1,0 +1,187 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Transaction history</h1>
+    <p>
+      Everything this biller has processed, with the daily totals and a per-gateway breakdown.
+      Dates are business dates, in the zone the backend runs in.
+    </p>
+  </div>
+
+  <div class="card">
+    <form [formGroup]="form" (ngSubmit)="load()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="billerId">Biller id</label>
+          <input
+            id="billerId"
+            type="number"
+            formControlName="billerId"
+            [readOnly]="!auth.isAdmin()"
+          />
+          @if (!auth.isAdmin()) {
+            <span class="muted small-note">You can only view your own history.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" type="date" formControlName="date" />
+        </div>
+
+        <div class="field">
+          <label for="gatewayId">Gateway</label>
+          <select id="gatewayId" formControlName="gatewayId">
+            <option value="">All gateways</option>
+            @for (gateway of gatewayChoices(); track gateway.id) {
+              <option [value]="gateway.id">{{ gateway.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Loading...' : 'Apply filters' }}
+        </button>
+        <button type="button" class="secondary" (click)="clearFilters()" [disabled]="loading()">
+          Clear
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if (error()) {
+    <div class="alert error">{{ error() }}</div>
+  }
+
+  @if (history(); as data) {
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Transactions</div>
+        <div class="value">{{ data.totalTransactions }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Amount processed</div>
+        <div class="value">{{ data.totalAmountProcessed | number: '1.2-2' }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Commission charged</div>
+        <div class="value">{{ data.totalCommissionCharged | number: '1.2-2' }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Period</div>
+        <div class="value period">{{ data.date ?? 'All dates' }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div>
+          <h2>Per gateway</h2>
+          <p>
+            One count per transaction sent to the gateway. On a single date the amount is also
+            the quota used, so "Quota left" is the daily limit minus it; pick a date to see it.
+          </p>
+        </div>
+      </div>
+
+      @if (data.gatewayBreakdown.length === 0) {
+        <div class="empty">Nothing processed for this filter.</div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Gateway</th>
+                <th class="numeric">Transactions</th>
+                <th class="numeric">Amount</th>
+                <th class="numeric">Commission</th>
+                <th class="numeric">Daily limit</th>
+                <th class="numeric">Quota left</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of data.gatewayBreakdown; track row.gatewayId) {
+                <tr>
+                  <td>{{ row.gatewayName }}</td>
+                  <td class="numeric">{{ row.transactionCount }}</td>
+                  <td class="numeric">{{ row.totalAmount | number: '1.2-2' }}</td>
+                  <td class="numeric">{{ row.totalCommission | number: '1.2-2' }}</td>
+                  <td class="numeric">{{ row.dailyLimitPerBiller | number: '1.2-2' }}</td>
+                  <td class="numeric">
+                    {{ quotaLeft(row) == null ? '-' : (quotaLeft(row) | number: '1.2-2') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div>
+          <h2>Transactions</h2>
+          <p>
+            One row per transaction the gateway processed. A payment large enough to need
+            splitting appears as one row per chunk.
+          </p>
+        </div>
+      </div>
+
+      @if (data.transactions.length === 0) {
+        <div class="empty">No transactions for this filter.</div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Processed at</th>
+                <th>Gateway</th>
+                <th>Urgency</th>
+                <th class="numeric">Amount</th>
+                <th class="numeric">Commission</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of data.transactions; track row.id) {
+                <tr>
+                  <td>{{ row.id }}</td>
+                  <td>{{ row.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                  <td>{{ row.gateway.name }}</td>
+                  <td><span class="badge">{{ row.urgency }}</span></td>
+                  <td class="numeric">{{ row.amount | number: '1.2-2' }}</td>
+                  <td class="numeric">{{ row.commission | number: '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (data.totalPages > 1) {
+          <div class="pager">
+            <button
+              type="button"
+              class="secondary small"
+              [disabled]="data.page === 0 || loading()"
+              (click)="load(data.page - 1)"
+            >
+              Previous
+            </button>
+            <span class="muted">Page {{ data.page + 1 }} of {{ data.totalPages }}</span>
+            <button
+              type="button"
+              class="secondary small"
+              [disabled]="data.page + 1 >= data.totalPages || loading()"
+              (click)="load(data.page + 1)"
+            >
+              Next
+            </button>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

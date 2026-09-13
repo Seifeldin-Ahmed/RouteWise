@@ -1,0 +1,65 @@
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" routerLink="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32">
+          <path d="M6 24c8 0 5-16 13-16h5" />
+          <circle cx="25" cy="8" r="3.2" />
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong class="gradient-text">RouteWise</strong>
+        <small>Smart payment routing</small>
+      </span>
+    </a>
+
+    @if (auth.isLoggedIn()) {
+      <nav class="nav">
+        <a routerLink="/payments" routerLinkActive="active">Route a payment</a>
+        <a routerLink="/history" routerLinkActive="active">History</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin/gateways" routerLinkActive="active">Gateways</a>
+        }
+      </nav>
+    }
+
+    <div class="session">
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        @if (theme.theme() === 'dark') {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.5 14.5A8.6 8.6 0 0 1 9.5 3.5a8.6 8.6 0 1 0 11 11z" />
+          </svg>
+        }
+      </button>
+
+      @if (auth.isLoggedIn()) {
+        <span class="who">
+          {{ auth.currentUser()?.email }}
+          <span class="badge brand">{{ auth.currentUser()?.role }}</span>
+        </span>
+        <button type="button" class="secondary small" (click)="logout()">Sign out</button>
+      }
+    </div>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot-inner">
+    <span class="foot-brand gradient-text">RouteWise</span>
+    <span class="muted">Cheapest or fastest, chosen per payment.</span>
+  </div>
+</footer>

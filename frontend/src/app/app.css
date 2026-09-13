@@ -1,0 +1,167 @@
+/* The shell owns the page's vertical rhythm so the footer sits at the bottom of short pages. */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--chrome);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: linear-gradient(140deg, var(--brand), var(--violet) 55%, var(--accent));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.42);
+}
+
+.brand-mark svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.brand-mark circle {
+  fill: #fff;
+  stroke: none;
+}
+
+.brand strong {
+  display: block;
+  line-height: 1.15;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.brand small {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.nav {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav a {
+  padding: 0.4rem 0.8rem;
+  border-radius: 9px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav a:hover {
+  background: var(--nav-hover);
+  color: var(--text);
+}
+
+.nav a.active {
+  background: var(--brand-soft);
+  color: var(--brand-light);
+  box-shadow: inset 0 0 0 1px var(--brand-border);
+}
+
+/* Everything on the right-hand end of the bar, signed in or not. */
+.session {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-left: auto;
+}
+
+/* Icon only, so it keeps its size whichever glyph is showing. */
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.theme-toggle:hover:not(:disabled) {
+  background: var(--nav-hover);
+  color: var(--text);
+  transform: none;
+}
+
+.theme-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.sitefoot {
+  border-top: 1px solid var(--border);
+  background: var(--chrome-soft);
+}
+
+.sitefoot-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.83rem;
+}
+
+.foot-brand {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}

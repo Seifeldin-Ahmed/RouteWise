@@ -1,0 +1,48 @@
+/* Mirror of the sign-in layout: here the form leads and the explanation follows it. */
+.auth-split.signup {
+  grid-template-columns: minmax(0, 430px) minmax(0, 1.05fr);
+}
+
+.auth-steps {
+  counter-reset: step;
+  display: grid;
+  gap: 1.05rem;
+  list-style: none;
+}
+
+.auth-steps li {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 0.85rem;
+}
+
+.auth-steps li::before {
+  counter-increment: step;
+  content: '0' counter(step);
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border-radius: 9px;
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px var(--brand-border);
+  color: var(--brand-light);
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.auth-steps b {
+  align-self: center;
+}
+
+.auth-steps span {
+  grid-column: 2;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 940px) {
+  .auth-split.signup {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

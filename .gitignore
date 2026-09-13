@@ -1,0 +1,13 @@
+# Build output and dependencies are ignored by backend/.gitignore and frontend/.gitignore.
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
