@@ -2,7 +2,7 @@
   <div class="hero-glow" aria-hidden="true"></div>
 
   <div class="shell hero-copy">
-    <span class="pill-tag">Routing engine, live on this page</span>
+    <span class="pill-tag">Gateway routing engine</span>
 
     <h1>Every payment takes<br /><span class="gradient-text">the smartest route.</span></h1>
 
@@ -22,112 +22,14 @@
       }
     </div>
   </div>
-
-  <!--
-    Not a screenshot and not a canned sequence: the board below runs ports of the same four
-    filters and the same ranking the service uses, against the visitor's own clock.
-  -->
-  <div class="shell">
-    <section class="console" #console aria-label="Try the router">
-      <header class="console-top">
-        <div class="dial">
-          <label for="amount">Amount to route</label>
-          <input id="amount" type="range" min="100" max="40000" step="100"
-                 [value]="amount()" (input)="setAmount($any($event.target).value)" />
-        </div>
-
-        <output class="reading" for="amount">
-          {{ amount() | number: '1.0-0' }}<small>EGP</small>
-        </output>
-
-        <div class="toggle" role="group" aria-label="Urgency">
-          <button type="button" [class.on]="urgency() === 'CAN_WAIT'"
-                  (click)="setUrgency('CAN_WAIT')">Can wait</button>
-          <button type="button" [class.on]="urgency() === 'INSTANT'"
-                  (click)="setUrgency('INSTANT')">Instant</button>
-        </div>
-      </header>
-
-      <div class="board">
-        <div class="brow head" aria-hidden="true">
-          <span>Gateway</span>
-          <span class="fee">Fee</span>
-          <span class="num">Commission</span>
-          <span class="num">Settles</span>
-          <span class="quota">Today's allowance</span>
-        </div>
-
-        @for (row of board().rows; track row.gateway.id) {
-          <div class="brow" [class.win]="row === board().chosen"
-               [class.out]="!board().ranked.includes(row)">
-            <span class="who">
-              <b>{{ row.gateway.name }}</b>
-              <i>{{ row.gateway.blurb }}</i>
-            </span>
-
-            @if (board().ranked.includes(row)) {
-              <span class="fee">
-                {{ row.gateway.fixed | number: '1.2-2' }} + {{ row.gateway.percentage }}%
-              </span>
-              <span class="num cost">{{ row.commission | number: '1.2-2' }}</span>
-              <span class="num">{{ speed(row.gateway.hours) }}</span>
-              <span class="quota">
-                <span class="bar">
-                  <i class="spent" [style.width.%]="share(row, 'used')"></i>
-                  <i class="taking" [style.width.%]="share(row, 'now')"></i>
-                </span>
-              </span>
-
-              @if (row.chunks.length > 1) {
-                <span class="chunks">
-                  Split into {{ row.chunks.length }}:
-                  @for (chunk of row.chunks; track $index) {
-                    <b>{{ chunk | number: '1.0-2' }}</b>
-                  }
-                </span>
-              }
-            } @else {
-              <span class="why">{{ row.reason }}</span>
-            }
-          </div>
-        }
-      </div>
-
-      <p class="verdict" role="status">
-        @if (board().chosen; as best) {
-          <strong>{{ best.gateway.name }}</strong>
-          @if (board().splitting) {
-            takes it in {{ best.chunks.length }} parts for
-            {{ best.commission | number: '1.2-2' }} EGP in total commission - one gateway, one
-            allowance, one payment.
-          } @else {
-            wins on {{ urgency() === 'INSTANT' ? 'speed' : 'cost' }}:
-            {{ best.commission | number: '1.2-2' }} EGP, {{ speed(best.gateway.hours) }}.
-          }
-          @if (comparedWith(); as other) {
-            @if (urgency() === 'INSTANT') {
-              Going instant costs {{ difference() | number: '1.2-2' }} EGP more than
-              {{ other.gateway.name }} would have.
-            } @else {
-              That is {{ difference() | number: '1.2-2' }} EGP cheaper than
-              {{ other.gateway.name }}, the quickest one open.
-            }
-          }
-        } @else {
-          Nothing can take {{ amount() | number: '1.0-0' }} EGP right now - not whole, and not in
-          parts. Nothing would be recorded and no allowance spent.
-        }
-      </p>
-    </section>
-  </div>
 </section>
 
 <section class="shell rules-section">
   <header class="section-head">
     <h2>Four filters, then a ranking</h2>
     <p>
-      A gateway that fails any one of these is never offered. The counts are live - move the
-      slider and watch which rule does the work.
+      A gateway that fails any one of these is never offered. Only what clears all four ever
+      reaches the payment.
     </p>
   </header>
 
@@ -136,31 +38,21 @@
       <span class="rule-no">01</span>
       <h3>Open right now</h3>
       <p>Inside its operating days and its hours, including windows that run past midnight.</p>
-      <span class="tally" [class.hit]="knockedOut().hours > 0">
-        {{ knockedOut().hours }} turned away
-      </span>
     </li>
     <li>
       <span class="rule-no">02</span>
       <h3>Allowance left</h3>
       <p>Your daily quota on that gateway still covers the whole payment, every chunk included.</p>
-      <span class="tally" [class.hit]="knockedOut().quota > 0">
-        {{ knockedOut().quota }} turned away
-      </span>
     </li>
     <li>
       <span class="rule-no">03</span>
       <h3>Takes the amount</h3>
       <p>At or above its minimum. Over its ceiling it is offered as a split instead.</p>
-      <span class="tally" [class.hit]="knockedOut().range > 0">
-        {{ knockedOut().range }} turned away
-      </span>
     </li>
     <li>
       <span class="rule-no">04</span>
       <h3>Wins the ranking</h3>
       <p>Cheapest then fastest, or fastest then cheapest. Ties break on the lowest gateway id.</p>
-      <span class="tally hit">{{ knockedOut().ranked }} still standing</span>
     </li>
   </ol>
 </section>
@@ -171,23 +63,15 @@
       <h2>Too big for one transaction? It still goes through.</h2>
       <p>
         RouteWise asks for the fewest chunks that work, then rebalances so no chunk falls under
-        the gateway's minimum - the leftover gets topped up out of the one before it. Below,
-        {{ example.amount | number: '1.0-0' }} EGP through {{ example.gateway.name }}: a bare
-        remainder of
-        {{ example.amount - example.gateway.max | number: '1.0-0' }} would have been under its
-        {{ example.gateway.min | number: '1.0-0' }} minimum, so the split moves to
-        {{ example.chunks[0] | number: '1.0-0' }} and
-        {{ example.chunks[1] | number: '1.0-0' }}.
+        the gateway's minimum - the leftover gets topped up out of the one before it. Take
+        25,100 EGP through a gateway that caps at 25,000: a bare remainder of 100 would have
+        been under its 2,000 minimum, so the split moves to 23,100 and 2,000.
       </p>
-      <button type="button" class="btn ghost inline" (click)="showExample()">
-        Run it on the board
-      </button>
     </div>
 
     <div class="propbar" aria-hidden="true">
-      @for (chunk of example.chunks; track $index) {
-        <span [style.flex]="chunk">{{ chunk | number: '1.0-0' }}</span>
-      }
+      <span style="flex: 23100">23,100</span>
+      <span style="flex: 2000">2,000</span>
     </div>
   </div>
 </section>
