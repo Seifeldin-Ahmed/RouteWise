@@ -16,10 +16,7 @@
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT" />
 </p>
 
-<!-- Drop a screenshot at docs/screenshot.png and it will show up here. -->
-<p align="center">
-  <img src="docs/screenshot.png" alt="RouteWise landing page" width="900" />
-</p>
+<img width="1706" height="781" alt="image" src="https://github.com/user-attachments/assets/7424d47f-7e7c-4a08-980a-d3be613972e0" />
 
 ---
 
