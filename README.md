@@ -205,10 +205,3 @@ src/app
  │    └── admin/gateways          Gateway CRUD (admin only)
  └── app.ts / app.routes.ts / app.config.ts
 ```
-
-
----
-
-<p align="center">
-  Built as the Fawry smart payment routing assignment.
-</p>
