@@ -65,11 +65,6 @@ public class GatewayService {
         gatewayRepository.save(gateway);
     }
 
-
-    /**
-     * Takes the gateway's history with it: nothing references gateways with {@code ON DELETE},
-     * so the rows have to go first or the database refuses the delete.
-     */
     @Transactional
     public void delete(Integer id) {
         var gateway = findById(id);
