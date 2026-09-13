@@ -65,6 +65,7 @@ public class GatewayService {
         gatewayRepository.save(gateway);
     }
 
+
     @Transactional
     public void delete(Integer id) {
         var gateway = findById(id);

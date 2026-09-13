@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/billers")
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
 @RequiredArgsConstructor
 public class BillerTransactionController {
 

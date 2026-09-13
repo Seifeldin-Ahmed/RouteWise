@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tools.jackson.databind.ObjectMapper;
 
@@ -27,17 +26,13 @@ public class JsonLoginFilterConfig extends UsernamePasswordAuthenticationFilter 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             var userDetails = (MyUserDetails) auth.getPrincipal();
-            var roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .map(role -> role.replaceFirst("^ROLE_", ""))
-                    .toList();
 
-            var token = JwtUtils.generateToken(userDetails.getUsername(), userDetails.getId(), roles);
+            var token = JwtUtils.generateToken(userDetails.getUsername(), userDetails.getId(), userDetails.getUser().getRole().name());
             response.getWriter().write("{\"status\":\"success\",\"message\":\"Login successful\""
                     + ",\"token\":\"" + token + "\""
                     + ",\"userId\":" + userDetails.getId()
                     + ",\"email\":\"" + userDetails.getUsername() + "\""
-                    + ",\"role\":\"" + roles.getFirst() + "\"}");
+                    + ",\"role\":\"" + userDetails.getUser().getRole().name() + "\"}");
         });
 
         // failure handler

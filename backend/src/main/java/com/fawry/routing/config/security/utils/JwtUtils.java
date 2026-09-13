@@ -6,7 +6,6 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.List;
 
 public class JwtUtils {
 
@@ -15,12 +14,12 @@ public class JwtUtils {
     private static final long EXPIRATION_MS = 3600000; // 1 hour
     private Claims claims;
 
-    public static String generateToken(String email, int id, List<String> roles) {
+    public static String generateToken(String email, int id, String role) {
         return Jwts.builder()
-                // the payload is email + userId + roles as array of strings
+                // the payload is email + userId + the single role the user holds
                 .claim("email", email)
                 .claim("id", id)
-                .claim("roles", roles)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(key)
@@ -45,10 +44,7 @@ public class JwtUtils {
         return this.claims.get("email", String.class);
     }
 
-    public List<String> getRoles(String token) {
-        @SuppressWarnings("unchecked")
-        var roles = (List<String>) this.claims.get("roles");
-
-        return roles;
+    public String getRole(String token) {
+        return this.claims.get("role", String.class);
     }
 }

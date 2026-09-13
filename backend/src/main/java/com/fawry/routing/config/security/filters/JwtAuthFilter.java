@@ -32,14 +32,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 jwtUtils.validateToken(token);
 
                 var userId = jwtUtils.getId(token);
-                var roles = jwtUtils.getRoles(token);
-                if (roles == null) {
-                    roles = List.of();
-                }
+                var role = jwtUtils.getRole(token);
 
-                var authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .toList();
+                var authorities = role == null
+                        ? List.<SimpleGrantedAuthority>of()
+                        : List.of(new SimpleGrantedAuthority(role));
 
                 // The user id is the principal, so it travels with the request on its own.
                 SecurityContextHolder.getContext().setAuthentication(

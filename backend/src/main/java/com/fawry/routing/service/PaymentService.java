@@ -32,7 +32,7 @@ public class PaymentService {
     private final TransactionService transactionService;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    @PreAuthorize("hasRole('ADMIN') or #request.billerId == authentication.principal")
+    @PreAuthorize("hasAuthority('ADMIN') or #request.billerId == authentication.principal")
     public RecommendResponse recommend(PaymentRequest request) {
 
         var biller = userService.getById(request.getBillerId());
@@ -68,7 +68,7 @@ public class PaymentService {
 
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    @PreAuthorize("hasRole('ADMIN') or #request.billerId == authentication.principal")
+    @PreAuthorize("hasAuthority('ADMIN') or #request.billerId == authentication.principal")
     public SplitResponse split(PaymentRequest request) {
 
         var biller = userService.getById(request.getBillerId());

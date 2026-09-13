@@ -51,7 +51,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('ADMIN') or #billerId == authentication.principal")
+    @PreAuthorize("hasAuthority('ADMIN') or #billerId == authentication.principal")
     public TransactionHistoryResponse history(Integer billerId, LocalDate date, Integer gatewayId, int page) {
 
         userService.getById(billerId);

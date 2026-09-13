@@ -1,6 +1,7 @@
 package com.fawry.routing.dto.request;
 
 import com.fawry.routing.validation.ValidGatewayAmounts;
+import com.fawry.routing.validation.ValidGatewayAvailability;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ValidGatewayAmounts
+@ValidGatewayAvailability
 public class GatewayRequest {
 
     @NotBlank(message = "name is required")

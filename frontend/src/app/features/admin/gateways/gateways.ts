@@ -124,6 +124,15 @@ export class Gateways {
       return;
     }
 
+    // On a one-day range a closing time before the opening one runs backwards, not overnight.
+    if (raw.availableDayFrom === raw.availableDayTo && raw.availableFrom > raw.availableTo) {
+      this.error.set(
+        `The closing time is earlier than the opening time on ${SHORT_DAY[raw.availableDayFrom]}. ` +
+          'For an overnight window, set the last day to the day it ends on.',
+      );
+      return;
+    }
+
     const payload: GatewayRequest = {
       name: raw.name,
       fixedCommission: raw.fixedCommission,

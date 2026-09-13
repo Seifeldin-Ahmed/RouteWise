@@ -14,13 +14,11 @@ public final class AvailabilityChecker {
                                         LocalTime from,
                                         LocalTime to,
                                         ZonedDateTime now) {
-        if (dayFrom == null || dayTo == null || from == null || to == null || now == null) {
+        if (now == null) {
             return false;
         }
-        if (!isWithinWindow(from, to, now.toLocalTime())) {
-            return false;
-        }
-        return isWithinDayRange(dayFrom, dayTo, openingDayOf(from, to, now));
+        return isWithinWindow(from, to, now.toLocalTime())
+                && isWithinDayRange(dayFrom, dayTo, now.getDayOfWeek());
     }
 
 
@@ -47,15 +45,5 @@ public final class AvailabilityChecker {
         var span = Math.floorMod(to.getValue() - from.getValue(), 7);
         var offset = Math.floorMod(day.getValue() - from.getValue(), 7);
         return offset <= span;
-    }
-
-
-    private static DayOfWeek openingDayOf(LocalTime from, LocalTime to, ZonedDateTime now) {
-        var crossesMidnight = from.isAfter(to);
-        var beforeTodaysOpening = now.toLocalTime().isBefore(from);
-        if (crossesMidnight && beforeTodaysOpening) {
-            return now.getDayOfWeek().minus(1);
-        }
-        return now.getDayOfWeek();
     }
 }
